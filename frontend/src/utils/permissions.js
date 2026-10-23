@@ -1,0 +1,43 @@
+export const ALL_PERMISSIONS = [
+  { key: 'view_presensi',     label: 'Lihat Data Presensi',      group: 'Presensi' },
+  { key: 'create_presensi',   label: 'Tambah Presensi Manual',   group: 'Presensi' },
+  { key: 'edit_presensi',     label: 'Edit Data Presensi',       group: 'Presensi' },
+  { key: 'delete_presensi',   label: 'Hapus Data Presensi',      group: 'Presensi' },
+  { key: 'view_kunjungan',        label: 'Lihat Kunjungan Toko',     group: 'Kunjungan' },
+  { key: 'edit_kunjungan',        label: 'Edit Kunjungan',           group: 'Kunjungan' },
+  { key: 'delete_kunjungan',      label: 'Hapus Kunjungan',          group: 'Kunjungan' },
+  { key: 'view_target_kunjungan', label: 'Lihat Target Kunjungan',   group: 'Kunjungan' },
+  { key: 'manage_target_kunjungan', label: 'Kelola Target Kunjungan', group: 'Kunjungan' },
+  { key: 'view_izin',         label: 'Lihat Izin Karyawan',      group: 'Izin' },
+  { key: 'approve_izin',      label: 'Setujui / Tolak Izin',     group: 'Izin' },
+  { key: 'delete_izin',       label: 'Hapus Data Izin',          group: 'Izin' },
+  { key: 'view_sales',        label: 'Lihat Data Sales',         group: 'Sales' },
+  { key: 'create_sales',      label: 'Tambah Sales Baru',        group: 'Sales' },
+  { key: 'edit_sales',        label: 'Edit Data Sales',          group: 'Sales' },
+  { key: 'delete_sales',      label: 'Hapus / Nonaktifkan Sales',group: 'Sales' },
+  { key: 'view_toko',         label: 'Lihat Data Toko',        group: 'Toko' },
+  { key: 'create_toko',       label: 'Tambah Toko Baru',         group: 'Toko' },
+  { key: 'edit_toko',         label: 'Edit Data Toko',           group: 'Toko' },
+  { key: 'delete_toko',       label: 'Hapus Toko',               group: 'Toko' },
+  { key: 'view_laporan',      label: 'Lihat Laporan',            group: 'Laporan' },
+  { key: 'export_pdf',        label: 'Export PDF',               group: 'Laporan' },
+  { key: 'export_excel',      label: 'Export Excel',             group: 'Laporan' },
+  { key: 'view_pengiriman',    label: 'Lihat Daftar Muat & Riwayat',     group: 'Pengiriman' },
+  { key: 'create_pengiriman', label: 'Buat Rencana Muat',               group: 'Pengiriman' },
+  { key: 'edit_pengiriman',   label: 'Edit / Assign Driver ke Muat',    group: 'Pengiriman' },
+  { key: 'delete_pengiriman', label: 'Hapus Rencana Muat',              group: 'Pengiriman' },
+  { key: 'muat_subsidi',      label: 'Pegang Muat Subsidi',             group: 'Pengiriman' },
+  { key: 'muat_non_subsidi',  label: 'Pegang Muat Non Subsidi & Checker', group: 'Pengiriman' },
+  { key: 'view_armada',       label: 'Lihat Master Driver & Kendaraan', group: 'Pengiriman' },
+  { key: 'manage_armada',     label: 'Kelola Driver & Kendaraan',       group: 'Pengiriman' },
+  { key: 'manage_users',      label: 'Kelola Pengguna Admin',    group: 'Sistem' },
+  { key: 'manage_roles',      label: 'Kelola Role',              group: 'Sistem' },
+  { key: 'manage_pengaturan', label: 'Kelola Pengaturan',        group: 'Sistem' },
+  { key: 'view_maps_sales',   label: 'Lihat Maps Sebaran Sales', group: 'Sistem' },
+  { key: 'send_broadcast',    label: 'Kirim Pengumuman',         group: 'Sistem' },
+]
+
+export const PERMISSION_GROUPS = [...new Set(ALL_PERMISSIONS.map((p) => p.group))]
+
+// Chat dan Notifikasi isinya urusan sales, jadi admin yang hanya mengurus pengiriman tidak perlu melihatnya.
+export const HAK_SALES = ['view_sales', 'view_presensi', 'view_izin', 'view_kunjungan']

@@ -1,0 +1,653 @@
+/* ============================================================ */
+/* TMK Admin v2 — Design System                                 */
+/* Warm Sunset · Dark-first · Enterprise SaaS                   */
+/* ============================================================ */
+
+/* Self-hosted Inter — font-display:optional mencegah repaint LCP akibat font-swap.
+   Pada koneksi cepat Inter tetap dipakai (load <100ms block period).
+   Pada Slow 4G / koneksi lambat: system font digunakan → tidak ada LCP repaint. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: optional;
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Override PrimeIcons: ganti font-display:block → optional.
+   optional = tidak repaint LCP, icon muncul saat font sudah siap di render berikutnya. */
+@font-face {
+  font-family: 'primeicons';
+  font-display: optional;
+  font-style: normal;
+  font-weight: normal;
+  src: local('primeicons');
+}
+
+/* ── Tokens ─────────────────────────────────────────────────── */
+:root {
+  /* Brand — derived from TMK logo */
+  --c-brand-50:   #fff7ed;
+  --c-brand-100:  #ffedd5;
+  --c-brand-200:  #fed7aa;
+  --c-brand-300:  #fdba74;
+  --c-brand-400:  #fb923c;
+  --c-brand-500:  #f97316;
+  --c-brand-600:  #ea580c;
+  --c-brand-700:  #c2410c;
+  --c-brand-800:  #9a3412;
+  --c-brand-900:  #7c2d12;
+  --c-amber:      #f59e0b;
+  --c-amber-light:#fbbf24;
+
+  /* Status — green ONLY for success/online/ws */
+  --c-success:    #16a34a;
+  --c-success-bg: rgba(22,163,74,0.10);
+  --c-online:     #22c55e;
+  --c-warning:    #f59e0b;
+  --c-danger:     #ef4444;
+  --c-info:       #3b82f6;
+
+  /* Tint status — latar lencana dan kotak catatan.
+     Sengaja rgba, bukan hex pekat seperti #dcfce7: warna tembus pandang
+     menempel di atas permukaan apa pun, jadi satu nilai cukup untuk mode
+     terang maupun gelap tanpa berubah jadi tambalan putih menyilaukan. */
+  --c-success-soft: rgba(22,163,74,.10);
+  --c-success-line: rgba(22,163,74,.28);
+  --c-warning-soft: rgba(245,158,11,.12);
+  --c-warning-line: rgba(245,158,11,.32);
+  --c-danger-soft:  rgba(239,68,68,.10);
+  --c-danger-line:  rgba(239,68,68,.28);
+  --c-info-soft:    rgba(59,130,246,.10);
+  --c-info-line:    rgba(59,130,246,.28);
+  --c-brand-soft:   rgba(249,115,22,.10);
+  --c-brand-line:   rgba(249,115,22,.30);
+
+  /* Kategori muatan: nila untuk non-subsidi, ungu untuk ngecer. Bukan status,
+     jadi tidak boleh memakai hijau/kuning/merah yang sudah punya arti. */
+  --c-nila:        #4338ca;
+  --c-nila-soft:   rgba(99,102,241,.12);
+  --c-ungu:        #6d28d9;
+  --c-ungu-soft:   rgba(139,92,246,.12);
+
+  /* Light surface */
+  --s-bg:       #f4f1ed;
+  --s-0:        #ffffff;
+  --s-1:        #faf8f5;
+  --s-2:        #f0ece6;
+  --s-border:   #e2dbd0;
+  --s-border2:  #ccc4b8;
+
+  /* Light text */
+  --t-primary:  #18120a;
+  --t-secondary:#6b5e52;
+  --t-muted:    #a09080;
+
+  /* Shadows */
+  --sh-xs: 0 1px 3px rgba(100,60,10,.07);
+  --sh-sm: 0 2px 8px rgba(100,60,10,.10);
+  --sh-md: 0 4px 20px rgba(100,60,10,.13);
+  --sh-lg: 0 8px 40px rgba(100,60,10,.18);
+  --sh-xl: 0 16px 60px rgba(100,60,10,.22);
+  --sh-brand: 0 4px 20px rgba(249,115,22,.30);
+  --sh-brand-lg: 0 8px 40px rgba(249,115,22,.40);
+
+  /* Layout */
+  --sidebar-w:      256px;
+  --sidebar-rail-w:  60px;
+  --navbar-h:        56px;
+
+  /* Radii */
+  --r-xs:  4px;
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-2xl: 28px;
+  --r-full:999px;
+
+  /* Motion */
+  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:  0.15s;
+  --dur-base:  0.22s;
+  --dur-slow:  0.35s;
+}
+
+/* ── Nama lama ──────────────────────────────────────────────────
+   Sebagian berkas (chat.css, NotificationPanel, UnderDevelopment) masih
+   memakai nama token dari sebelum sistem warna ini ada, dan memakainya TANPA
+   fallback. Token yang tidak terdefinisi membuat seluruh deklarasinya gugur
+   diam-diam: `color: var(--tmk-text)` tidak menghasilkan apa-apa, warnanya
+   sekadar mewarisi induknya. Itu tidak terlihat di mode terang karena
+   warisannya kebetulan gelap, tapi jadi sumber kekacauan di mode gelap.
+
+   Dijadikan alias, bukan diganti satu per satu di 45 tempat: aliasnya menunjuk
+   token yang sudah punya varian gelap, jadi ikut berubah dengan sendirinya. */
+:root {
+  --tmk-primary:        var(--c-brand-500);
+  --tmk-orange-500:     var(--c-brand-500);
+  --tmk-orange-600:     var(--c-brand-600);
+  --tmk-text:           var(--t-primary);
+  --tmk-text-muted:     var(--t-secondary);
+  --tmk-text-subtle:    var(--t-muted);
+  --tmk-border:         var(--s-border);
+  --tmk-surface-2:      var(--s-2);
+  --tmk-radius-sm:      var(--r-sm);
+  --tmk-radius-md:      var(--r-md);
+  --tmk-transition:     var(--dur-base) var(--ease);
+
+  --s-50:               var(--s-1);
+  --s-100:              var(--s-2);
+
+  --surface-card:       var(--s-0);
+  --surface-border:     var(--s-border);
+  --text-color-secondary: var(--t-secondary);
+}
+
+/* ── Dark overrides ─────────────────────────────────────────── */
+.app-dark {
+  --s-bg:      #0e0b08;
+  --s-0:       #161210;
+  --s-1:       #1e1916;
+  --s-2:       #271f1a;
+  --s-border:  #2e2419;
+  --s-border2: #3d3025;
+
+  --t-primary:  #f5f0ea;
+  --t-secondary:#b8a898;
+  --t-muted:    #7a6a5a;
+
+  /* Warna status dinaikkan terangnya. Hijau #16a34a dan merah #dc2626 cukup
+     terbaca di atas kertas putih, tapi di atas permukaan gelap keduanya
+     tenggelam jadi noda tak terbaca. */
+  --c-success:  #4ade80;
+  --c-online:   #4ade80;
+  --c-warning:  #fbbf24;
+  --c-danger:   #f87171;
+  --c-info:     #60a5fa;
+
+  --c-success-bg:   rgba(74,222,128,.14);
+  --c-success-soft: rgba(74,222,128,.14);
+  --c-success-line: rgba(74,222,128,.30);
+  --c-warning-soft: rgba(251,191,36,.15);
+  --c-warning-line: rgba(251,191,36,.34);
+  --c-danger-soft:  rgba(248,113,113,.14);
+  --c-danger-line:  rgba(248,113,113,.30);
+  --c-info-soft:    rgba(96,165,250,.14);
+  --c-info-line:    rgba(96,165,250,.30);
+  --c-brand-soft:   rgba(251,146,60,.14);
+  --c-brand-line:   rgba(251,146,60,.32);
+
+  --c-nila:        #a5b4fc;
+  --c-nila-soft:   rgba(99,102,241,.18);
+  --c-ungu:        #c4b5fd;
+  --c-ungu-soft:   rgba(139,92,246,.18);
+
+  --sh-xs: 0 1px 3px rgba(0,0,0,.25);
+  --sh-sm: 0 2px 8px rgba(0,0,0,.35);
+  --sh-md: 0 4px 20px rgba(0,0,0,.45);
+  --sh-lg: 0 8px 40px rgba(0,0,0,.55);
+  --sh-xl: 0 16px 60px rgba(0,0,0,.65);
+}
+
+/* ── Reset ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  margin: 0;
+  overflow: hidden; /* cegah scroll bocor ke luar workspace */
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  background: var(--s-bg);
+  color: var(--t-primary);
+}
+
+html.app-dark, .app-dark { color-scheme: dark; }
+
+#app { height: 100%; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar            { width: 4px; height: 4px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: var(--s-border2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover{ background: var(--t-muted); }
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes fadeUp    { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+@keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+@keyframes scaleIn   { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:none} }
+@keyframes shimmer   { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
+@keyframes pulse     { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes ping      { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.2);opacity:0} }
+@keyframes spinSlow  { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes glowPulse { 0%,100%{box-shadow:0 0 8px rgba(249,115,22,.3)} 50%{box-shadow:0 0 24px rgba(249,115,22,.7)} }
+@keyframes bounce3   { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+@keyframes slideInRight { from{transform:translateX(12px);opacity:0} to{transform:none;opacity:1} }
+
+/* Halaman entrance — semua halaman pakai class ini via scoped style atau langsung */
+.page-enter { animation: fadeUp var(--dur-base) var(--ease) both; }
+
+/* ── Skeleton shimmer ───────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--s-border) 25%,
+    var(--s-2) 50%,
+    var(--s-border) 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--r-sm);
+}
+
+/* ── Layout: new workspace shell ────────────────────────────── */
+.workspace {
+  display: flex;
+  height: 100vh;
+  min-height: 100vh;
+  background: var(--s-bg);
+}
+
+.workspace-body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;   /* scroll hanya di dalam konten, sidebar & navbar tetap diam */
+  overflow-x: hidden;
+  padding: 1.25rem 1.5rem;
+  background: var(--s-bg);
+}
+
+.workspace-content:has(.chat-page) {
+  padding: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── PrimeVue token overrides ───────────────────────────────── */
+/* Card */
+.p-card {
+  background: var(--s-0) !important;
+  border: 1px solid var(--s-border) !important;
+  box-shadow: var(--sh-xs) !important;
+  border-radius: var(--r-lg) !important;
+}
+.p-card .p-card-body    { padding: 0 !important; }
+.p-card .p-card-content { padding: 1.25rem !important; }
+.p-card .p-card-header  { padding: 0 !important; }
+
+/* Inputs */
+.p-inputtext {
+  border-radius: var(--r-sm) !important;
+  font-size: .9rem !important;
+  background: var(--s-0) !important;
+  border-color: var(--s-border) !important;
+  color: var(--t-primary) !important;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease) !important;
+}
+.p-inputtext:focus {
+  border-color: var(--c-brand-400) !important;
+  box-shadow: 0 0 0 3px rgba(249,115,22,.15) !important;
+}
+.p-inputtext::placeholder { color: var(--t-muted) !important; }
+.p-select, .p-textarea, .p-password input { border-radius: var(--r-sm) !important; }
+
+/* Dropdown disamakan dengan kolom teks biasa.
+ *
+ * `.p-inputtext` sudah diturunkan ke .9rem di atas, tapi `.p-select` tidak
+ * pernah ikut diatur, jadi ia tetap memakai huruf dasar 15px berikut padding
+ * yang sebanding. Selisihnya cuma 1,5px di atas kertas, tapi karena tinggi
+ * kotaknya ikut tumbuh, dropdown terlihat jelas lebih besar daripada kolom di
+ * sebelahnya — dan paling terasa di layar HP, waktu semuanya melebar penuh.
+ *
+ * Isi daftarnya ikut disamakan supaya ukurannya tidak melompat begitu
+ * dropdown-nya dibuka.
+ */
+.p-select-label,
+.p-select-option,
+.p-select-empty-message { font-size: .9rem !important; }
+
+/* Tepi, placeholder, dan efek fokus dropdown ikut kolom teks. */
+.p-select:not(.p-invalid) {
+  background: var(--s-0) !important;
+  border-color: var(--s-border) !important;
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease) !important;
+}
+.p-select:not(.p-invalid).p-focus {
+  border-color: var(--c-brand-400) !important;
+  box-shadow: 0 0 0 3px rgba(249,115,22,.15) !important;
+}
+.p-select-label.p-placeholder { color: var(--t-muted) !important; }
+
+/* Buttons */
+.p-button {
+  border-radius: var(--r-sm) !important;
+  font-weight: 600 !important;
+  font-size: .9rem !important;
+  transition: all var(--dur-fast) var(--ease) !important;
+}
+.p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-plain) {
+  background: linear-gradient(135deg, var(--c-brand-500), var(--c-brand-600)) !important;
+  border-color: var(--c-brand-600) !important;
+}
+.p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-plain):hover {
+  background: linear-gradient(135deg, var(--c-brand-600), var(--c-brand-700)) !important;
+  box-shadow: var(--sh-brand) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Tags */
+.p-tag {
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  padding: .22rem .7rem !important;
+  border-radius: var(--r-full) !important;
+  letter-spacing: .02em;
+}
+.p-badge {
+  font-size: .68rem !important;
+  font-weight: 800 !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
+}
+
+/* DataTable */
+.p-datatable .p-datatable-thead > tr > th {
+  font-size: .76rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-weight: 700;
+  color: var(--t-secondary);
+  background: var(--s-1) !important;
+  border-color: var(--s-border) !important;
+}
+.p-datatable .p-datatable-tbody > tr { transition: background var(--dur-fast); }
+.p-datatable .p-datatable-tbody > tr:hover { background: var(--s-1) !important; }
+
+/* Dialog */
+.p-dialog {
+  border-radius: var(--r-xl) !important;
+  background: var(--s-0) !important;
+  border: 1px solid var(--s-border) !important;
+  box-shadow: var(--sh-xl) !important;
+}
+.p-dialog .p-dialog-header {
+  border-radius: var(--r-xl) var(--r-xl) 0 0 !important;
+  background: var(--s-0) !important;
+  border-bottom: 1px solid var(--s-border) !important;
+  padding: 1.25rem 1.5rem !important;
+}
+.p-dialog .p-dialog-content { background: var(--s-0) !important; padding: 1.5rem !important; }
+.p-dialog .p-dialog-footer {
+  border-radius: 0 0 var(--r-xl) var(--r-xl) !important;
+  background: var(--s-0) !important;
+  border-top: 1px solid var(--s-border) !important;
+  padding: 1rem 1.5rem !important;
+}
+
+/* Toast */
+.p-toast .p-toast-message { border-radius: var(--r-lg) !important; box-shadow: var(--sh-lg) !important; }
+
+/* OverlayPanel / Menu */
+.p-overlaypanel, .p-menu {
+  border-radius: var(--r-lg) !important;
+  background: var(--s-0) !important;
+  border: 1px solid var(--s-border) !important;
+  box-shadow: var(--sh-lg) !important;
+}
+.p-menu { padding: .3rem !important; }
+.p-menuitem-link { border-radius: var(--r-xs) !important; transition: background var(--dur-fast) !important; }
+.p-menuitem-link:hover { background: var(--s-1) !important; }
+
+/* ── Dark: PrimeVue deep overrides ─────────────────────────── */
+.app-dark .p-card                    { background: var(--s-0) !important; border-color: var(--s-border) !important; }
+.app-dark .p-inputtext,
+.app-dark .p-textarea,
+.app-dark .p-select,
+.app-dark .p-password input,
+.app-dark .p-password .p-inputtext   { background: var(--s-1) !important; border-color: var(--s-border) !important; color: var(--t-primary) !important; }
+.app-dark .p-inputtext::placeholder,
+.app-dark .p-password input::placeholder { color: var(--t-muted) !important; }
+.app-dark .p-select-label            { color: var(--t-primary) !important; }
+/* Password wrapper */
+.app-dark .p-password               { background: transparent !important; }
+.app-dark .p-password-panel         { background: var(--s-0) !important; border-color: var(--s-border) !important; }
+/* Toggle buttons in dark */
+.app-dark .p-toggleswitch-slider    { background: var(--s-2) !important; border-color: var(--s-border) !important; }
+.app-dark .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider { background: var(--c-brand-500) !important; }
+.app-dark .p-datatable .p-datatable-thead > tr > th { background: var(--s-1) !important; border-color: var(--s-border) !important; }
+.app-dark .p-datatable .p-datatable-tbody > tr      { background: var(--s-0) !important; }
+.app-dark .p-datatable .p-datatable-tbody > tr:hover{ background: var(--s-1) !important; }
+.app-dark .p-datatable .p-datatable-tbody > tr.p-row-odd { background: color-mix(in srgb, var(--s-0) 60%, var(--s-1)) !important; }
+.app-dark .p-dialog,.app-dark .p-dialog-header,
+.app-dark .p-dialog-content,.app-dark .p-dialog-footer { background: var(--s-0) !important; border-color: var(--s-border) !important; }
+.app-dark .p-overlaypanel,.app-dark .p-menu { background: var(--s-0) !important; border-color: var(--s-border) !important; }
+.app-dark .p-menuitem-link:hover     { background: var(--s-1) !important; }
+.app-dark .p-paginator               { background: var(--s-0) !important; border-color: var(--s-border) !important; }
+
+/* ── Dark: Layout ───────────────────────────────────────────── */
+.app-dark body,
+.app-dark #app,
+.app-dark .workspace              { background: var(--s-bg) !important; }
+.app-dark .workspace-content      { background: var(--s-bg) !important; }
+
+/* ── Accessibility fixes ────────────────────────────────────── */
+/* Pastikan teks di atas brand orange memenuhi WCAG AA (4.5:1 ratio) */
+/* Orange #f97316 butuh teks putih atau gelap — JANGAN abu-abu muda  */
+.p-button:not(.p-button-text):not(.p-button-outlined):not(.p-button-plain) {
+  color: #ffffff !important; /* putih di atas gradient orange: ~4.5:1 */
+}
+/* Tag/badge brand di atas latar putih: gunakan warna gelap agar kontras */
+.p-tag.p-tag-warn  { color: #92400e !important; } /* amber-800 di atas amber-bg */
+.p-tag.p-tag-info  { color: #1e40af !important; }
+
+/* ── Utility atoms ──────────────────────────────────────────── */
+.surface    { background: var(--s-0); border: 1px solid var(--s-border); }
+.surface-1  { background: var(--s-1); }
+.surface-2  { background: var(--s-2); }
+
+/* Divider */
+.divider { height: 1px; background: var(--s-border); }
+
+/* Paginator: pin ke dasar viewport selama kartunya masih terlihat.
+   Tanpa ini, tabel yang panjang (mis. 50 baris) mendorong paginator ke
+   bawah layar dan roda mouse cuma menggulirkan body tabel, bukan halaman —
+   tombolnya jadi tidak bisa dijangkau. */
+/* Hanya di desktop: di mobile tabel tidak bertinggi tetap dan halaman
+   menggulir normal, jadi bar melayang malah menutupi konten. */
+@media (min-width: 992px) {
+  .pagination-bar {
+    position: sticky;
+    /* Minus sebesar padding bawah .workspace-content agar baris tidak mengintip di bawah bar. */
+    bottom: -1.25rem;
+    z-index: 2;
+    background: var(--s-0);
+  }
+}
+
+/* Brand gradient text */
+.text-brand {
+  background: linear-gradient(135deg, var(--c-brand-500), var(--c-amber));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glow border utility */
+.glow-border {
+  border: 1px solid rgba(249,115,22,.35);
+  box-shadow: 0 0 0 1px rgba(249,115,22,.12) inset;
+}
+
+/* Glass card */
+.glass {
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.app-dark .glass {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.07);
+}
+
+/* Online / WS dot */
+.dot-online {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--c-online);
+  box-shadow: 0 0 6px var(--c-online);
+}
+
+/* Chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .73rem;
+  font-weight: 700;
+  padding: .22rem .7rem;
+  border-radius: var(--r-full);
+  letter-spacing: .02em;
+}
+.chip-brand   { background:rgba(249,115,22,.12); color:var(--c-brand-600); }
+.chip-success { background:rgba(22,163,74,.12);  color:var(--c-success); }
+.chip-warning { background:rgba(245,158,11,.12); color:#b45309; }
+.chip-danger  { background:rgba(239,68,68,.12);  color:#dc2626; }
+.chip-info    { background:rgba(59,130,246,.12); color:#2563eb; }
+.app-dark .chip-brand   { color:var(--c-brand-400); }
+.app-dark .chip-warning { color:var(--c-amber-light); }
+.app-dark .chip-danger  { color:#f87171; }
+.app-dark .chip-info    { color:#60a5fa; }
+
+/* Flex helpers */
+.flex   { display:flex; }
+.flex-1 { flex:1; }
+.items-center { align-items:center; }
+.gap-2  { gap:.5rem; }
+.gap-3  { gap:.75rem; }
+.mb-2   { margin-bottom:.5rem; }
+.mb-3   { margin-bottom:.75rem; }
+
+/* Route transition — tanpa mode="out-in", masuk/keluar overlap secara bersamaan */
+.rt-enter-active { transition: opacity .12s ease, transform .14s ease; }
+.rt-leave-active { transition: opacity .08s ease; position: absolute; width: 100%; }
+.rt-enter-from   { opacity: 0; transform: translateY(5px); }
+.rt-leave-to     { opacity: 0; }
+
+/* ── Responsive workspace padding ──────────────────────────── */
+@media (max-width: 991px) {
+  .workspace-content { padding: 1rem 1.1rem; }
+}
+@media (max-width: 768px) {
+  .workspace-content { padding: .75rem .85rem; }
+}
+@media (max-width: 480px) {
+  .workspace-content { padding: .6rem .65rem; }
+}
+
+/* ── Responsive dialog ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .p-dialog { width: 95vw !important; max-width: 95vw !important; }
+  .p-dialog .p-dialog-content { padding: 1rem !important; }
+  .p-dialog .p-dialog-header  { padding: .85rem 1rem !important; }
+  .p-dialog .p-dialog-footer  { padding: .75rem 1rem !important; }
+}
+
+/* ── Responsive sidebar overlay ────────────────────────────── */
+@media (max-width: 768px) {
+  .p-overlaypanel { max-width: calc(100vw - 1.5rem) !important; }
+}
+
+/* ── Ponsel: kolom isian dan daftar pilihan ─────────────────── */
+/* Safari iPhone memperbesar layar setiap kolom di bawah 16px diketuk, dan
+   tampilan tidak kembali sendiri — dialog jadi bergeser dan terpotong. */
+@media (hover: none) and (pointer: coarse) {
+  /* Awalan html: menang atas aturan halaman yang lebih spesifik (login, chat). */
+  html .p-inputtext, html .p-textarea, html input, html textarea, html select,
+  html .ff-wrap .p-inputtext, html .ff-wrap .p-password-input,
+  html .sidebar-search .p-inputtext,
+  html .chat-input-inner .p-textarea, html .chat-input-inner textarea { font-size: 16px !important; }
+  /* Dropdown tetap sama besar dengan kolom teks di sebelahnya (lihat catatan di bagian Inputs). */
+  html .p-select-label, html .p-select-option, html .p-select-empty-message { font-size: 16px !important; }
+}
+/* Daftar hasil dropdown dan pencarian tidak boleh lebih lebar dari layar; teks
+   panjang (alamat toko) turun ke baris berikutnya, bukan mendorong halaman melebar. */
+@media (max-width: 768px) {
+  .p-select-overlay, .p-autocomplete-overlay { max-width: calc(100vw - 1.5rem) !important; }
+  .p-select-option, .p-autocomplete-option { white-space: normal !important; overflow-wrap: anywhere; }
+}
+
+/* ── Tabel: gulir mendatar bila tidak muat ─────────────────── */
+.p-datatable .p-datatable-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── Ponsel: saringan selebar penuh, tabel menjadi kartu ───── */
+@media (max-width: 640px) {
+  .filter-bar { align-items: stretch !important; }
+  .filter-bar > *:not(.p-button-icon-only):not(.p-togglebutton) { width: 100% !important; min-width: 0 !important; flex: 1 1 100% !important; }
+  .filter-bar .p-select, .filter-bar .p-datepicker, .filter-bar .p-iconfield,
+  .filter-bar .p-iconfield > .p-inputtext, .filter-bar .p-multiselect { width: 100% !important; }
+
+  .filter-bar > .divider-v { display: none !important; }
+  .filter-bar .date-range { display: flex; }
+  .filter-bar .date-range > * { flex: 1 1 0; min-width: 0; }
+  .filter-bar .date-range > .date-sep { flex: 0 0 auto; }
+
+  /* Kartu pembungkus tabel dilepas supaya tidak ada kartu di dalam kartu */
+  .p-card:has(> .p-card-body > .p-card-content > .p-datatable:first-child) {
+    background: transparent !important; border: 0 !important; box-shadow: none !important;
+  }
+  .p-card:has(> .p-card-body > .p-card-content > .p-datatable:first-child) > .p-card-body > .p-card-content { padding: 0 !important; }
+
+  .p-datatable .p-datatable-table-container { overflow-x: visible; }
+  .p-datatable .p-datatable-table { display: block; min-width: 0 !important; }
+  .p-datatable .p-datatable-thead { display: none; }
+  .p-datatable .p-datatable-tbody { display: flex; flex-direction: column; gap: .65rem; }
+  .p-datatable .p-datatable-tbody > tr {
+    display: block; padding: .3rem .9rem;
+    background: var(--p-content-background) !important;
+    border: 1px solid var(--p-content-border-color); border-radius: 12px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / .04);
+  }
+  .p-datatable .p-datatable-tbody > tr > td {
+    display: flex; align-items: center; justify-content: space-between; gap: .85rem;
+    width: auto !important; min-width: 0 !important; max-width: none !important;
+    padding: .5rem 0 !important; border: 0 !important; text-align: right !important;
+    background: transparent !important;
+  }
+  .p-datatable .p-datatable-tbody > tr > td + td { border-top: 1px dashed var(--p-content-border-color) !important; }
+  .p-datatable .p-datatable-tbody > tr > td::before {
+    content: attr(data-label); flex: 0 0 32%; text-align: left;
+    font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--p-text-muted-color);
+  }
+  .p-datatable .p-datatable-tbody > tr > td[data-label=""]::before,
+  .p-datatable .p-datatable-tbody > tr > td:not([data-label])::before { display: none; }
+  .p-datatable .p-datatable-tbody > tr > td[data-label=""],
+  .p-datatable .p-datatable-tbody > tr > td:not([data-label]) { justify-content: flex-end; }
+  .p-datatable .p-datatable-tbody > tr > td[data-label="No."] { display: none; }
+  .p-datatable .p-datatable-tbody > tr > td > * { min-width: 0; }
+  .p-datatable .p-datatable-tbody > tr.p-datatable-emptymessage > td { display: block; text-align: center !important; }
+  .p-datatable .p-datatable-tbody > tr.p-datatable-emptymessage { border: 0; box-shadow: none; background: transparent !important; }
+
+  .p-datatable .p-button.p-button-icon-only { min-width: 2.5rem; min-height: 2.5rem; }
+  .p-paginator { flex-wrap: wrap; justify-content: center; gap: .25rem; padding: .5rem .25rem !important; }
+}

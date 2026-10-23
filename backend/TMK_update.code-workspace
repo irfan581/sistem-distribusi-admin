@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../apk_sales"
+		}
+	],
+	"settings": {
+		"Laravel.middleware.diagnostics": false
+	}
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/logo-icon-96.webp" type="image/webp" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- iOS Safari tidak baca manifest.icons untuk "Add to Home Screen",
+         butuh tag khusus ini supaya iconnya kepasang & tampil standalone -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Versi standar; Chrome menandai varian apple- sebagai deprecated.
+         Keduanya harus ada — Safari iOS masih hanya membaca yang apple-. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TMK Admin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Tani Makmur Admin: Sistem Presensi & Manajemen Sales" />
+    <meta name="theme-color" content="#f97316" />
+    <title>Tani Makmur Admin</title>
+
+    <!-- Preconnect ke API agar request login tidak cold-start -->
+    <link rel="preconnect" href="https://api.example.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.example.com" />
+
+    <!-- Preload aset kritis -->
+    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/logo-icon-96.webp" as="image" type="image/webp" fetchpriority="high" />
+
+    <!-- Critical CSS inline — render pre-render tidak tunggu CSS bundle -->
+    <style>
+      *,*::before,*::after{box-sizing:border-box}
+      html,body{margin:0;padding:0;min-height:100vh}
+      body{background:#0f0a06;color:#fff;font-family:'Inter',system-ui,sans-serif}
+      #app{min-height:100vh;display:flex}
+
+      /* Suppress entrance animations saat pertama kali Vue mount (pre-render sudah tampil) */
+      body.pre-rendered .lp-mob-hero,
+      body.pre-rendered .lp-mob-brand,
+      body.pre-rendered .lp-card,
+      body.pre-rendered .lp-card .lp-hd,
+      body.pre-rendered .lp-card .lp-form{animation:none!important}
+
+      /* ── Pre-render: mobile login layout (≤899px) ── */
+      @media(max-width:899px){
+        .lp{display:flex;flex-direction:column;background:#f97316;min-height:100dvh;overflow-y:auto;overflow-x:hidden;font-family:inherit}
+        .lp-panel{flex:1 1 auto;width:100%;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0;background:transparent;position:relative}
+        .lp-mob-hero{width:100%;flex-shrink:0;background:linear-gradient(160deg,#f97316 0%,#c2410c 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:3.5rem 1.5rem 4rem;position:relative;overflow:hidden}
+        .lp-mob-hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:60px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'%3E%3Cpath d='M0,30 C360,70 1080,-10 1440,30 L1440,60 L0,60 Z' fill='%23faf6f1'/%3E%3C/svg%3E") no-repeat bottom/100%}
+        .lp-mob-brand{display:flex;flex-direction:column;align-items:center;gap:.6rem;text-align:center;position:relative;z-index:2}
+        .lp-mob-icon{height:60px;width:auto;filter:drop-shadow(0 4px 20px rgba(0,0,0,.35))}
+        .lp-mob-name{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+        .lp-mob-tagline{display:block;font-size:.72rem;font-weight:500;color:rgba(255,255,255,.65);letter-spacing:.04em;text-transform:uppercase}
+        .lp-mob-body{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;background:#faf6f1;padding:0 1.25rem 2rem;position:relative}
+        .lp-panel-inner{width:100%;max-width:420px;margin-top:-28px}
+        .lp-card{width:100%;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:1.75rem 1.5rem;box-shadow:0 4px 16px rgba(0,0,0,.08),0 16px 40px rgba(0,0,0,.12)}
+        .lp-hd{margin-bottom:1rem}
+        .lp-hd-eyebrow{display:flex;align-items:center;gap:.4rem;font-size:.67rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c2410c;margin:0 0 .65rem}
+        .lp-hd-pip{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor}
+        .lp-hd-title{font-size:1.5rem;font-weight:800;letter-spacing:-.035em;line-height:1.15;color:#1a1008;margin:0 0 .5rem}
+        .lp-hd-accent{color:#ea580c}
+        .lp-hd-sub{font-size:.84rem;color:#6b5c50;line-height:1.6;margin:0}
+        .lp-form{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}
+        .ff{display:flex;flex-direction:column;gap:.35rem}
+        .ff-label{font-size:.78rem;font-weight:600;color:#3a2c1e;letter-spacing:.01em}
+        .ff-wrap{position:relative}
+        .p-inputtext{width:100%;padding-left:1rem;height:48px;border-radius:11px;font-size:.875rem;background:#f8f4ef;border:1.5px solid #e5ddd4;color:#1a1008;outline:none;font-family:inherit;display:block}
+        .p-password{width:100%}
+        .ff-err-text{font-size:.73rem;color:transparent;padding-left:.1rem;display:block}
+        .lp-remember{padding-top:.1rem}
+        .rem-label{display:inline-flex;align-items:center;gap:.55rem}
+        .rem-text{font-size:.8rem;color:#5c4a3a}
+        .lp-serr{display:flex;min-height:1.6rem;color:transparent;padding:0 .1rem;margin:0}
+        .lp-btn{width:100%;height:50px;border:none;border-radius:12px;background:linear-gradient(135deg,#f97316 0%,#ea580c 55%,#c2410c 100%);color:#fff;font-size:.93rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:.25rem;box-shadow:0 2px 8px rgba(194,65,12,.3),0 6px 20px rgba(194,65,12,.2)}
+        .lp-btn-inner{display:flex;align-items:center;justify-content:center}
+        .lp-foot{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:.7rem;color:#b8a090;margin-top:auto;padding-top:1.5rem}
+        .lp-foot-sep{opacity:.5}
+      }
+
+      /* Desktop: sembunyikan elemen mobile agar tidak flash sebelum CSS bundle load */
+      @media(min-width:900px){
+        .lp-mob-hero,.lp-mob-body{display:none!important}
+        /* Tampilkan background dark agar desktop tidak blank orange */
+        .lp{background:#0f0a06}
+        .lp-panel{background:#faf6f1}
+      }
+    </style>
+  </head>
+  <body class="pre-rendered">
+    <div id="app">
+      <!-- Pre-rendered login page — diganti Vue saat JS selesai load.
+           Tujuan: FCP langsung muncul tanpa tunggu JS bundle. -->
+      <div class="lp">
+        <main class="lp-panel">
+
+          <!-- ══ MOBILE HERO ══ -->
+          <div class="lp-mob-hero">
+            <div class="lp-mob-brand">
+              <picture>
+                <source srcset="/logo-icon-96.webp" type="image/webp" />
+                <img src="/logo-icon.png" alt="TMK" class="lp-mob-icon"
+                  width="48" height="48" fetchpriority="high" />
+              </picture>
+              <span class="lp-mob-name">Tani Makmur</span>
+              <span class="lp-mob-tagline">Sales &amp; Management Platform</span>
+            </div>
+          </div>
+
+          <!-- ══ MOBILE BODY ══ -->
+          <div class="lp-mob-body">
+            <div class="lp-panel-inner">
+              <div class="lp-card">
+
+                <header class="lp-hd">
+                  <p class="lp-hd-eyebrow">
+                    <span class="lp-hd-pip"></span>Administrator Portal
+                  </p>
+                  <h1 class="lp-hd-title">
+                    Selamat datang<span class="lp-hd-accent">.</span>
+                  </h1>
+                  <p class="lp-hd-sub">
+                    Masuk untuk memantau tim, presensi, dan laporan sales.
+                  </p>
+                </header>
+
+                <form class="lp-form" novalidate autocomplete="on">
+                  <div class="ff">
+                    <label class="ff-label" for="pre-email">Email</label>
+                    <div class="ff-wrap">
+                      <input id="pre-email" type="email" placeholder="email address"
+                        autocomplete="email" class="p-inputtext"
+                        tabindex="-1" aria-hidden="true" />
+                    </div>
+                    <span class="ff-err-text">&nbsp;</span>
+                  </div>
+                  <div class="ff">
+                    <label class="ff-label" for="pre-password">Password</label>
+                    <div class="ff-wrap">
+                      <div class="p-password">
+                        <input id="pre-password" type="password" placeholder="••••••••"
+                          autocomplete="current-password" class="p-inputtext"
+                          tabindex="-1" aria-hidden="true" />
+                      </div>
+                    </div>
+                    <span class="ff-err-text">&nbsp;</span>
+                  </div>
+                  <div class="lp-remember">
+                    <label class="rem-label">
+                      <span class="rem-text">Ingat saya 30 hari</span>
+                    </label>
+                  </div>
+                </form>
+
+                <p class="lp-serr">&nbsp;</p>
+
+                <button class="lp-btn" type="button" tabindex="-1" aria-hidden="true">
+                  <span class="lp-btn-inner">Masuk ke Dashboard</span>
+                </button>
+
+              </div><!-- /.lp-card -->
+            </div><!-- /.lp-panel-inner -->
+
+            <footer class="lp-foot">
+              <span>© 2026 Tani Makmur</span>
+              <span class="lp-foot-sep">·</span>
+              <span>Sistem Presensi Sales</span>
+            </footer>
+          </div><!-- /.lp-mob-body -->
+
+        </main>
+      </div><!-- /.lp -->
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

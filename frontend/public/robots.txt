@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /login
+
+Disallow: /dashboard
+Disallow: /employees
+Disallow: /attendance
+Disallow: /chat
+Disallow: /settings
+Disallow: /admin-users
+Disallow: /kunjungan
+Disallow: /izin
+Disallow: /maps
+Disallow: /notifications
+Disallow: /broadcast
+Disallow: /toko
+Disallow: /visit-targets
+Disallow: /assets/

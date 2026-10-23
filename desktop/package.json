@@ -1,0 +1,57 @@
+{
+  "name": "tmk-admin-desktop",
+  "version": "1.0.0",
+  "description": "TMK Admin desktop shell (Electron wrapper around example.com)",
+  "main": "main.js",
+  "private": true,
+  "author": "Tani Makmur",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "release:win": "electron-builder --win --publish always"
+  },
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^26.17.0"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9",
+    "electron-window-state": "^5.0.3"
+  },
+  "build": {
+    "appId": "com.tanimakmur.admin",
+    "productName": "TMK Admin",
+    "files": [
+      "main.js",
+      "preload.js",
+      "update-token.js",
+      "icons/**/*"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "irfan581",
+      "repo": "tani-makmur-admin",
+      "private": true
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icons/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icons/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

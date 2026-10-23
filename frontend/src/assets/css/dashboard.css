@@ -1,0 +1,671 @@
+/* ── Dashboard root ─────────────────────────────────────────── */
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* ── Entrance keyframes ─────────────────────────────────────── */
+@keyframes dashFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dashFadeIn {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes kpiBarPulse {
+  0%   { opacity: 1; }
+  50%  { opacity: .5; }
+  100% { opacity: 1; }
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* HEADER                                                        */
+/* ══════════════════════════════════════════════════════════════ */
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--s-0);
+  border: 1px solid var(--s-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-xs);
+  animation: dashFadeUp .45s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+.dh-left {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+
+.dh-logo-wrap {
+  width: 46px; height: 46px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(249,115,22,.35);
+  flex-shrink: 0;
+}
+
+.dh-text { display: flex; flex-direction: column; gap: .1rem; }
+
+.dh-greeting {
+  display: flex;
+  align-items: baseline;
+  gap: .35rem;
+  flex-wrap: wrap;
+}
+.dh-hi   { font-size: .95rem; color: var(--t-secondary); font-weight: 500; }
+.dh-name { font-size: 1.4rem; font-weight: 800; color: var(--t-primary); letter-spacing: -.03em; line-height: 1.15; }
+.dh-wave { font-size: 1.1rem; line-height: 1; }
+.dh-date { font-size: .75rem; color: var(--t-muted); margin: 0; }
+
+.dh-right { display: flex; align-items: center; gap: .65rem; }
+
+.dh-ws-status {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #16a34a;
+  background: rgba(22,163,74,.09);
+  border: 1px solid rgba(34,197,94,.2);
+  border-radius: var(--r-full);
+  padding: .3rem .8rem;
+}
+.app-dark .dh-ws-status { color: #4ade80; }
+
+@keyframes wsPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+}
+
+.ws-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--c-online);
+  box-shadow: 0 0 6px var(--c-online);
+  animation: wsPulse 2s ease-in-out infinite;
+}
+
+.dh-refresh {
+  width: 34px; height: 34px;
+  border: 1px solid var(--s-border);
+  background: var(--s-0);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--t-secondary);
+  font-size: .85rem;
+  transition: all var(--dur-fast) var(--ease);
+}
+.dh-refresh:hover { background: rgba(249,115,22,.08); border-color: rgba(249,115,22,.3); color: var(--c-brand-500); }
+.dh-refresh.spinning i { animation: spinSlow .8s linear infinite; }
+
+/* ══════════════════════════════════════════════════════════════ */
+/* KPI STRIP                                                     */
+/* ══════════════════════════════════════════════════════════════ */
+.kpi-strip {
+  display: grid;
+  /* auto-fit, bukan jumlah kolom tetap: isi strip disaring per hak akses
+     (lihat kpiItems di DashboardView), jadi jumlah kartunya bisa 3 sampai 7
+     tergantung role. Angka tetap akan menyisakan kolom kosong. */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .7rem;
+  /* Strip itself fades in slightly after header */
+  animation: dashFadeUp .45s .12s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+.kpi-card {
+  background: var(--s-0);
+  border: 1px solid var(--s-border);
+  border-radius: var(--r-lg);
+  padding: .8rem .9rem .85rem;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  /* Label di atas, angka di bawah — label dapat lebar penuh kartu
+     sehingga tidak lagi berebut ruang horizontal dengan angka. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: .5rem;
+  animation: dashFadeIn .5s cubic-bezier(.22,.68,0,1.2) both;
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  border-color: var(--s-border2);
+}
+/* On hover, make the bar glow */
+.kpi-card:hover .kpi-bar { animation: kpiBarPulse .6s ease-in-out 1; }
+
+/* Top accent */
+.kpi-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.kpi-brand   .kpi-bar { background: linear-gradient(90deg, var(--c-brand-500), var(--c-amber)); }
+.kpi-success .kpi-bar { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.kpi-warning .kpi-bar { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.kpi-danger  .kpi-bar { background: linear-gradient(90deg, #ef4444, #dc2626); }
+.kpi-info    .kpi-bar { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+
+/* Baris atas: ikon + label */
+.kpi-head { display: flex; align-items: center; gap: .5rem; position: relative; z-index: 1; min-width: 0; }
+
+/* Icon */
+.kpi-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem;
+  flex-shrink: 0;
+  transition: transform var(--dur-fast);
+}
+.kpi-card:hover .kpi-icon { transform: scale(1.1); }
+.kpi-brand   .kpi-icon { background: rgba(249,115,22,.12); color: var(--c-brand-500); }
+.kpi-success .kpi-icon { background: rgba(34,197,94,.12);  color: #22c55e; }
+.kpi-warning .kpi-icon { background: rgba(245,158,11,.12); color: #f59e0b; }
+.kpi-danger  .kpi-icon { background: rgba(239,68,68,.12);  color: #ef4444; }
+.kpi-info    .kpi-icon { background: rgba(59,130,246,.12); color: #3b82f6; }
+
+.kpi-value {
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--t-primary);
+  line-height: 1;
+  letter-spacing: -.03em;
+  /* Lebar digit seragam — tanpa ini angka bergeser tiap frame saat
+     animasi count-up berjalan. */
+  font-variant-numeric: tabular-nums;
+}
+/* Label sekarang punya lebar penuh kartu (dikurangi ikon), jadi muat
+   satu baris. Clamp 2 baris tetap dipasang sebagai jaring pengaman
+   kalau nanti ada label yang lebih panjang. */
+.kpi-label {
+  font-size: .62rem;
+  color: var(--t-muted);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.kpi-skel {
+  display: block;
+  width: 38px; height: 24px;
+  background: linear-gradient(90deg, var(--s-border) 25%, var(--s-2) 50%, var(--s-border) 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--r-xs);
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* BENTO GRID                                                    */
+/* ══════════════════════════════════════════════════════════════ */
+/*
+  Layout 4 baris, 3 kolom (2fr 2fr 1.5fr):
+  R1: Tren Kehadiran (1-2, lebar)     | Distribusi Donut (3)
+  R2: Tren Kunjungan (1) | Visit (2)  | Aktivitas (3)
+  R3: Izin Pending (1)  | Monthly (2) | Quick Links (3)
+  R4: Pengiriman (1)   | Trend Kiriman (2-3, lebar)
+*/
+.bento {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr;
+  grid-template-rows: auto;
+  gap: .85rem;
+}
+
+/* Row 1 — Kehadiran mendominasi kiri, Donut merangkum kanan */
+.bento-chart    { grid-column: 1 / 3; grid-row: 1; animation: dashFadeIn .55s .28s cubic-bezier(.22,.68,0,1.2) both; }
+.bento-donut    { grid-column: 3 / 4; grid-row: 1; animation: dashFadeIn .55s .36s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Row 2-3 — Pengiriman naik ke atas: chart kiriman selebar penuh
+   (batangnya butuh ruang horizontal), stats armada menyusul di bawahnya */
+.bento-muatan-chart { grid-column: 1 / 4; grid-row: 2; animation: dashFadeIn .55s .44s cubic-bezier(.22,.68,0,1.2) both; }
+.bento-pengiriman   { grid-column: 1 / 4; grid-row: 3; animation: dashFadeIn .55s .50s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Row 4 — Dua chart kunjungan + aktivitas */
+.bento-vtrend   { grid-column: 1 / 2; grid-row: 4; animation: dashFadeIn .55s .56s cubic-bezier(.22,.68,0,1.2) both; }
+.bento-visit    { grid-column: 2 / 3; grid-row: 4; animation: dashFadeIn .55s .60s cubic-bezier(.22,.68,0,1.2) both; }
+.bento-activity { grid-column: 3 / 4; grid-row: 4; animation: dashFadeIn .55s .64s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Row 5 — Operasional: izin | rekap bulanan | akses cepat */
+.bento-izin     { grid-column: 1 / 2; grid-row: 5; animation: dashFadeIn .55s .68s cubic-bezier(.22,.68,0,1.2) both; }
+.bento-monthly  { grid-column: 2 / 3; grid-row: 5; animation: dashFadeIn .55s .72s cubic-bezier(.22,.68,0,1.2) both; }
+.bento-quick    { grid-column: 3 / 4; grid-row: 5; animation: dashFadeIn .55s .76s cubic-bezier(.22,.68,0,1.2) both; }
+
+/* Mode admin pengiriman — status hari ini paling atas, grafik berdampingan dengan akses cepat */
+.bento--pengiriman-only .bento-pengiriman   { grid-column: 1 / 4; grid-row: 1; }
+.bento--pengiriman-only .bento-muatan-chart { grid-column: 1 / 3; grid-row: 2; }
+.bento--pengiriman-only .bento-quick        { grid-column: 3 / 4; grid-row: 2; }
+
+/* ── Bento cell base ────────────────────────────────────────── */
+.bento-cell {
+  background: var(--s-0);
+  border: 1px solid var(--s-border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.bento-cell:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,.09);
+  border-color: var(--s-border2);
+  transform: translateY(-2px);
+}
+
+/* ── Cell head ──────────────────────────────────────────────── */
+.cell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .85rem 1.1rem .7rem;
+  border-bottom: 1px solid var(--s-border);
+  background: var(--s-1);
+  gap: .75rem;
+  flex-shrink: 0;
+}
+
+.cell-title-group { display: flex; flex-direction: column; gap: .08rem; }
+.cell-title {
+  font-size: .875rem;
+  font-weight: 700;
+  color: var(--t-primary);
+  letter-spacing: -.01em;
+}
+.cell-sub   { font-size: .7rem; color: var(--t-muted); }
+.warn-sub   { color: #d97706 !important; font-weight: 700; }
+
+.cell-links { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+.cell-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--c-brand-500);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: .2rem .6rem;
+  border-radius: var(--r-full);
+  background: rgba(249,115,22,.08);
+  border: 1px solid rgba(249,115,22,.15);
+  transition: all .15s ease;
+}
+.cell-link:hover {
+  background: rgba(249,115,22,.15);
+  border-color: rgba(249,115,22,.3);
+  color: var(--c-brand-600);
+}
+.cell-link i { font-size: .6rem; }
+
+/* ── Cell body ──────────────────────────────────────────────── */
+.cell-body { flex: 1; padding: .9rem 1.1rem; }
+.no-pad    { padding: 0; }
+.center-body { display: flex; align-items: center; justify-content: center; }
+
+/* ── Chart ──────────────────────────────────────────────────── */
+.chart-legend {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+}
+.leg {
+  display: flex; align-items: center; gap: .25rem;
+  font-size: .7rem; color: var(--t-muted);
+}
+.led {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.chart-ph { padding: .25rem 0; }
+
+/* ── Stream list (activity / izin) ─────────────────────────── */
+.stream-skel {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: .75rem 1.1rem;
+}
+.stream-skel-row { display: flex; align-items: center; gap: .65rem; }
+.skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+.stream-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 380px;
+}
+
+.stream-item {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .65rem 1.1rem;
+  border-bottom: 1px solid var(--s-border);
+  transition: background var(--dur-fast);
+  animation: slideInRight .25s var(--ease) both;
+}
+.stream-item:last-child { border-bottom: none; }
+.stream-item:hover { background: var(--s-1); }
+
+.stream-avatar {
+  width: 32px; height: 32px;
+  border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--c-brand-400), var(--c-brand-600));
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.av-amber { background: linear-gradient(135deg, #f59e0b, #b45309) !important; }
+
+.stream-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.stream-name { font-size: .82rem; font-weight: 600; color: var(--t-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stream-desc { font-size: .72rem; color: var(--t-muted); margin-top: 1px; }
+.stream-time { font-size: .68rem; color: var(--t-muted); white-space: nowrap; flex-shrink: 0; }
+
+/* Izin row additions */
+.izin-item { align-items: center; }
+.izin-meta { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-top: 2px; }
+
+.izin-btns { display: flex; gap: .25rem; flex-shrink: 0; }
+.act-btn {
+  width: 26px; height: 26px;
+  border: none;
+  border-radius: var(--r-xs);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem;
+  transition: all var(--dur-fast);
+}
+.act-ok { background: rgba(22,163,74,.1); color: #16a34a; }
+.act-ok:hover { background: rgba(22,163,74,.2); }
+.act-no { background: rgba(239,68,68,.1); color: #ef4444; }
+.act-no:hover { background: rgba(239,68,68,.2); }
+.act-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Empty state ────────────────────────────────────────────── */
+.cell-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 2rem 1rem;
+  font-size: .82rem;
+  color: var(--t-muted);
+}
+.empty-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--r-full);
+  background: var(--s-1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  color: var(--t-muted);
+}
+.empty-ok { background: rgba(22,163,74,.1) !important; color: #16a34a !important; }
+
+/* ── Quick access ────────────────────────────────────────────── */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .55rem;
+}
+.quick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+  padding: .9rem .5rem;
+  background: var(--s-1);
+  border: 1px solid var(--s-border);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: all .18s ease;
+  cursor: pointer;
+}
+.quick-btn:hover {
+  background: rgba(249,115,22,.07);
+  border-color: rgba(249,115,22,.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(249,115,22,.15);
+}
+.quick-btn:hover .quick-icon { transform: scale(1.1); }
+.quick-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  transition: transform .18s ease;
+}
+.qi-brand   { background: rgba(249,115,22,.13); color: var(--c-brand-500); }
+.qi-success { background: rgba(34,197,94,.12);  color: #16a34a; }
+.qi-warning { background: rgba(245,158,11,.12); color: #d97706; }
+.qi-info    { background: rgba(59,130,246,.12); color: #2563eb; }
+
+.quick-label {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--t-secondary);
+  text-align: center;
+}
+
+/* ── Monthly summary ────────────────────────────────────────── */
+.monthly-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+}
+.monthly-item {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  padding: .7rem .85rem;
+  background: var(--s-1);
+  border-radius: var(--r-md);
+  border: 1px solid var(--s-border);
+  transition: border-color .15s, background .15s;
+}
+.monthly-item:hover {
+  border-color: rgba(249,115,22,.25);
+  background: rgba(249,115,22,.03);
+}
+.monthly-val {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--t-primary);
+  letter-spacing: -.025em;
+  line-height: 1;
+}
+.monthly-val-brand { color: var(--c-brand-500); }
+.monthly-val-warn  { color: #d97706; }
+.monthly-val-ok    { color: #16a34a; }
+.monthly-label {
+  font-size: .65rem;
+  color: var(--t-muted);
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* RESPONSIVE                                                    */
+/* ══════════════════════════════════════════════════════════════ */
+
+/* ── 1200px: 2 kolom ─────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .bento { grid-template-columns: 1fr 1fr; gap: .75rem; }
+  /* R1 */
+  .bento-chart    { grid-column: 1 / 3; grid-row: 1; }
+  /* R2-R3 — pengiriman naik, keduanya selebar penuh */
+  .bento-muatan-chart { grid-column: 1 / 3; grid-row: 2; }
+  .bento-pengiriman   { grid-column: 1 / 3; grid-row: 3; }
+  /* R4 — donut turun ke sini, berpasangan dengan tren kunjungan */
+  .bento-donut    { grid-column: 1 / 2; grid-row: 4; }
+  .bento-vtrend   { grid-column: 2 / 3; grid-row: 4; }
+  /* R5 */
+  .bento-visit    { grid-column: 1 / 2; grid-row: 5; }
+  .bento-activity { grid-column: 2 / 3; grid-row: 5; }
+  /* R6 */
+  .bento-izin     { grid-column: 1 / 2; grid-row: 6; }
+  .bento-monthly  { grid-column: 2 / 3; grid-row: 6; }
+  .bento-quick    { grid-column: 1 / 3; grid-row: 7; }
+
+  /* Mode admin pengiriman — sama alasan seperti breakpoint mobile: rule
+     .bento--pengiriman-only lebih spesifik, harus di-override eksplisit
+     di tiap breakpoint supaya tidak memaksa kolom implisit lebar. */
+  .bento--pengiriman-only .bento-pengiriman   { grid-column: 1 / 3; grid-row: 1; }
+  .bento--pengiriman-only .bento-quick        { grid-column: 1 / 3; grid-row: 2; }
+  .bento--pengiriman-only .bento-muatan-chart { grid-column: 1 / 3; grid-row: 3; }
+}
+
+/* ── 900px: KPI 4 kolom tetap, bento tetap 2 kolom ─────────── */
+@media (max-width: 900px) {
+  .kpi-strip { grid-template-columns: repeat(4, 1fr); gap: .55rem; }
+  .kpi-value { font-size: 1.6rem; }
+  .kpi-card  { padding: .75rem .8rem; }
+  .cell-head { padding: .7rem .9rem .6rem; }
+  .cell-body { padding: .75rem .9rem; }
+}
+
+/* ── 768px: mobile — 1 kolom, semua stack ───────────────────── */
+@media (max-width: 768px) {
+  .dash { gap: .75rem; }
+
+  /* Header */
+  .dash-header { padding: .75rem 1rem; }
+  .dh-logo-wrap { width: 38px; height: 38px; border-radius: 10px; }
+  .dh-name { font-size: 1.15rem; }
+  .dh-date { font-size: .7rem; }
+  .dh-ws-status { font-size: .68rem; padding: .25rem .65rem; }
+
+  /* KPI strip: 2 kolom x 4 baris */
+  .kpi-strip { grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .kpi-value { font-size: 1.5rem; }
+  .kpi-label { font-size: .65rem; }
+  .kpi-card  { padding: .7rem .75rem; }
+
+  /* Bento: 1 kolom — semua stack */
+  .bento { grid-template-columns: 1fr; gap: .6rem; }
+  .bento-chart, .bento-donut,
+  .bento-vtrend, .bento-visit, .bento-activity,
+  .bento-izin, .bento-monthly, .bento-quick,
+  .bento-pengiriman, .bento-muatan-chart { grid-column: 1; grid-row: auto; }
+
+  /* Saat stack 1 kolom, urutan mengikuti DOM — dan di DOM pengiriman
+     ditulis paling akhir. Urutan dipaksa eksplisit di semua sel supaya
+     sama dengan desktop: kehadiran → pengiriman → kunjungan → operasional. */
+  .bento-chart        { order: 1; }
+  .bento-muatan-chart { order: 2; }
+  .bento-pengiriman   { order: 3; }
+  .bento-donut        { order: 4; }
+  .bento-vtrend       { order: 5; }
+  .bento-visit        { order: 6; }
+  .bento-activity     { order: 7; }
+  .bento-izin         { order: 8; }
+  .bento-monthly      { order: 9; }
+  .bento-quick        { order: 10; }
+
+  /* Mode admin pengiriman punya rule grid-column lebih spesifik
+     (.bento--pengiriman-only .bento-xxx) yang menang di atas breakpoint
+     manapun — override eksplisit di sini supaya tetap stack 1 kolom di mobile
+     dan tidak memaksa grid membuat kolom implisit lebar (bikin layar melebar). */
+  .bento--pengiriman-only .bento-pengiriman,
+  .bento--pengiriman-only .bento-muatan-chart,
+  .bento--pengiriman-only .bento-quick { grid-column: 1; grid-row: auto; }
+  .bento--pengiriman-only .bento-pengiriman   { order: 1; }
+  .bento--pengiriman-only .bento-quick        { order: 2; }
+  .bento--pengiriman-only .bento-muatan-chart { order: 3; }
+
+  /* Chart Trend Kiriman tanpa tinggi pasti jadi ikut auto-height echarts
+     yang berlebihan di layar sempit (kelihatan "molor" ke bawah). Kunci
+     tinggi wadahnya di mobile supaya proporsional. */
+  /* flex: none wajib — .cell-body punya flex: 1 (flex-basis: 0%), dan di
+     flex container kolom itu mengalahkan height. Tanpa ini tingginya
+     kolaps ke 0 dan ECharts gagal mengukur DOM. */
+  .bento-muatan-chart .cell-body { flex: none; height: 280px; }
+
+  /* Cell */
+  .cell-head  { padding: .65rem .85rem .55rem; gap: .5rem; }
+  .cell-body  { padding: .7rem .85rem; }
+  .cell-title { font-size: .82rem; }
+  .cell-sub   { font-size: .67rem; }
+
+  /* Stream */
+  .stream-list     { max-height: 260px; }
+  .stream-item     { padding: .55rem .85rem; gap: .55rem; }
+  .stream-avatar   { width: 28px; height: 28px; font-size: .68rem; }
+  .stream-name     { font-size: .78rem; }
+  .stream-desc     { font-size: .68rem; }
+  .stream-time     { font-size: .64rem; }
+
+  /* Quick links: 3 per baris */
+  .quick-grid { grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+  .quick-btn  { padding: .75rem .4rem; gap: .35rem; }
+  .quick-icon { width: 30px; height: 30px; font-size: .85rem; }
+  .quick-label { font-size: .65rem; }
+
+  /* Monthly */
+  .monthly-grid { grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .monthly-val  { font-size: 1.15rem; }
+}
+
+/* ── 480px: small phone ─────────────────────────────────────── */
+@media (max-width: 480px) {
+  .dash { gap: .6rem; }
+
+  /* Header */
+  .dash-header { padding: .65rem .85rem; }
+  .dh-logo-wrap { width: 34px; height: 34px; border-radius: 9px; }
+  .dh-greeting { flex-direction: column; gap: 0; line-height: 1.2; }
+  .dh-hi   { font-size: .78rem; }
+  .dh-name { font-size: 1rem; }
+  .dh-wave { display: none; }
+  .dh-ws-status { display: none; }
+
+  /* KPI: 2 kolom lebih compact */
+  .kpi-strip { grid-template-columns: 1fr 1fr; gap: .4rem; }
+  .kpi-card  { padding: .6rem .65rem; }
+  .kpi-value { font-size: 1.35rem; }
+  .kpi-icon  { width: 28px; height: 28px; font-size: .8rem; }
+  .kpi-head  { gap: .4rem; }
+
+  /* Cell */
+  .cell-head  { padding: .6rem .75rem .5rem; }
+  .cell-body  { padding: .6rem .75rem; }
+  .cell-title { font-size: .8rem; }
+
+  /* Chart legend di header: sembunyikan teks, tampilkan dot saja */
+  .chart-legend .leg { font-size: .65rem; }
+
+  /* Quick links: 2 per baris di hp kecil */
+  .quick-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Monthly */
+  .monthly-val { font-size: 1.05rem; }
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* DARK MODE OVERRIDES (DashPengirimanCell)                      */
+/* Diletakkan di sini agar berlaku sebagai global rule,          */
+/* tidak bergantung pada scoped CSS Vite.                        */
+/* ══════════════════════════════════════════════════════════════ */
+.app-dark .pg-card--brand  { background: rgba(234,88,12,.15)  !important; border-color: rgba(234,88,12,.3)   !important; }
+.app-dark .pg-card--success{ background: rgba(34,197,94,.12)  !important; border-color: rgba(34,197,94,.25)  !important; }
+.app-dark .pg-card--info   { background: rgba(59,130,246,.12) !important; border-color: rgba(59,130,246,.25) !important; }

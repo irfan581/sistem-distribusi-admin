@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('kunjungan_tokos', function (Blueprint $table) {
+            // Kolom untuk soft archive (hidden after 24h)
+            $table->timestamp('archived_at')->nullable()->after('updated_at');
+            
+            // Index untuk query performance
+            $table->index('archived_at');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('kunjungan_tokos', function (Blueprint $table) {
+            $table->dropIndex(['archived_at']);
+            $table->dropColumn('archived_at');
+        });
+    }
+};

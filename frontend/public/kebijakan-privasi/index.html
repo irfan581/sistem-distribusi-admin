@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kebijakan Privasi Driver TM</title>
+  <meta name="description" content="Kebijakan privasi aplikasi Driver TM milik Tani Makmur untuk sopir pengiriman.">
+  <style>
+    :root { --teks: #1f2937; --redup: #6b7280; --garis: #e5e7eb; --aksen: #ea580c; --latar: #ffffff; --tanda: #fef3c7; }
+    @media (prefers-color-scheme: dark) {
+      :root { --teks: #e5e7eb; --redup: #9ca3af; --garis: #374151; --aksen: #fb923c; --latar: #111827; --tanda: #78350f; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--latar); color: var(--teks); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+    h1 { font-size: 1.75rem; line-height: 1.25; margin: 0 0 4px; }
+    h2 { font-size: 1.15rem; margin: 32px 0 8px; padding-top: 16px; border-top: 1px solid var(--garis); }
+    .meta { color: var(--redup); font-size: .9rem; margin: 0 0 24px; }
+    ul { padding-left: 1.25rem; }
+    li { margin: 4px 0; }
+    a { color: var(--aksen); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Kebijakan Privasi Driver TM</h1>
+  <p class="meta">Berlaku sejak 16 Oktober 2026</p>
+
+  <p>Driver TM adalah aplikasi internal untuk sopir pengiriman CV Tani Makmur Sejahtera (Tani Makmur), Jl. Contoh Raya No. 1, Kabupaten Madiun, Jawa Timur 60000. Aplikasi ini hanya dapat dipakai oleh sopir yang akunnya dibuat oleh kantor. Halaman ini menjelaskan data apa yang dikumpulkan aplikasi, untuk apa, dan bagaimana data itu dijaga.</p>
+
+  <h2>Data yang dikumpulkan</h2>
+  <ul>
+    <li><strong>Data akun.</strong> Kode sopir dan kata sandi saat masuk. Nama, nomor telepon, dan kendaraan sopir dicatat oleh kantor, lalu ditampilkan di aplikasi. Kata sandi disimpan di server dalam bentuk acak (hash), bukan teks asli.</li>
+    <li><strong>Foto bukti bongkar dan catatan.</strong> Foto yang diambil sopir sebagai bukti barang sudah diturunkan di toko tujuan, beserta catatan yang ditulis sopir.</li>
+    <li><strong>Lokasi.</strong> Koordinat GPS diambil hanya saat sopir memotret bukti bongkar atau melaporkan status tujuan, untuk menunjukkan di mana bukti itu dibuat. Aplikasi juga mencatat apakah lokasi berasal dari aplikasi pemalsu lokasi. Lokasi tidak dilacak terus-menerus dan tidak diambil di latar belakang. Bila izin lokasi tidak diberikan atau GPS gagal, laporan tetap terkirim tanpa koordinat.</li>
+    <li><strong>Data perangkat.</strong> Pengenal perangkat untuk memastikan satu akun dipakai di satu HP, dan token notifikasi untuk mengirim pemberitahuan muatan baru.</li>
+  </ul>
+
+  <h2>Untuk apa data dipakai</h2>
+  <ul>
+    <li>Memberi tahu sopir tentang muatan dan tujuan pengiriman.</li>
+    <li>Mencatat bukti bahwa barang sudah diterima di setiap tujuan.</li>
+    <li>Menjaga keamanan akun.</li>
+  </ul>
+  <p>Data tidak dipakai untuk iklan dan tidak dijual.</p>
+
+  <h2>Pihak lain yang terlibat</h2>
+  <p>Data disimpan di server yang dikelola kantor. Untuk mengirim notifikasi ke HP, aplikasi memakai layanan Firebase Cloud Messaging dari Google, yang menerima token notifikasi perangkat. Data tidak dibagikan kepada pihak lain, kecuali bila diwajibkan oleh hukum.</p>
+
+  <h2>Keamanan</h2>
+  <p>Semua data dikirim melalui koneksi terenkripsi (HTTPS). Sesi masuk disimpan di penyimpanan aman milik sistem Android di HP sopir. Hanya admin kantor yang berwenang yang dapat melihat data pengiriman di panel admin.</p>
+
+  <h2>Berapa lama data disimpan</h2>
+  <p>Data disimpan selama diperlukan untuk keperluan operasional dan pencatatan pengiriman perusahaan.</p>
+
+  <h2>Hak sopir</h2>
+  <p>Sopir dapat meminta salinan, perbaikan, atau penghapusan datanya dengan menghubungi kantor. Cara meminta penghapusan akun dijelaskan di <a href="/hapus-akun/">Hapus Akun Driver TM</a>. Akun dapat dinonaktifkan oleh kantor kapan saja, dan sesi masuk di HP ikut berakhir.</p>
+
+  <h2>Usia pengguna</h2>
+  <p>Aplikasi ini ditujukan untuk sopir dewasa yang bekerja untuk Tani Makmur, bukan untuk anak-anak.</p>
+
+  <h2>Perubahan kebijakan</h2>
+  <p>Kebijakan ini dapat diperbarui. Tanggal berlaku di bagian atas halaman akan ikut diubah.</p>
+
+  <h2>Kontak</h2>
+  <p>WhatsApp kantor: <a href="https://wa.me/6281200000002">+62 812-0000-0002</a><br>
+  Alamat: Jl. Contoh Raya No. 1, Kabupaten Madiun, Jawa Timur 60000</p>
+</main>
+</body>
+</html>
